@@ -1,0 +1,37 @@
+TOOLCHAIN_TARGET="i586-pc-msdosdjgpp"
+inherit toolchain
+
+NAME="djgpp-runtime"
+VERSION=2.04pre_20141030
+RELEASE=1
+CATEGORY="Devel"
+SUMMARY="DJGPP toolchain C runtime"
+DESCRIPTION="DJGPP is a complete 32-bit C/C++ development system for Intel
+80386 (and higher) PCs running DOS."
+HOMEPAGE="http://www.delorie.com/djgpp/"
+SRC_URI="http://ap1.pp.fi/djgpp/djdev/djgpp/20141030/djlsr204.zip
+	 http://ap1.pp.fi/djgpp/djdev/djgpp/20141030/djdev204.zip
+	 http://ap1.pp.fi/djgpp/djdev/djgpp/20141030/djtzs204.zip"
+SRC_DIR=.
+
+src_compile() {
+	lndirs
+
+	cd ${B}
+	rm -f bin/*.?xe info/*.info lib/*.{a,o} src/stub/stub.map zoneinfo/src/*.man
+
+	cd ${B}/src
+	CFLAGS= \
+	cygmake -j1 CROSS_BUILD=1
+}
+
+src_install() {
+	cd ${B}
+	dotool hostbin/stub{edit,ify}.exe
+
+	cp -pr ${S}/include/ ${D}/usr/${TOOLCHAIN_TARGET}/sys-include
+
+	insinto /usr/${TOOLCHAIN_TARGET}/lib
+	doins lib/*.*
+}
+
